@@ -21,7 +21,7 @@ digraph G {
       style="rounded,filled", fillcolor="gray92"];
   a  [label="Cenário A\nNa fronteira: inventário, seguro\ne doação. Escolha pela aversão\nao risco de cauda.",
       style="rounded,filled", fillcolor="gray92"];
-  ca [label="Condição para o seguro:\npersistência do contrato\n(sai da fronteira com\ncaducidade de 2% a.a.)",
+  ca [label="Condição para o seguro:\npersistência do contrato\n(sai da fronteira com\nabandono de 2% a.a.)",
       shape=note, style="", fontsize=9.5, width=1.6];
   {rank=same; q1; g;}  {rank=same; q2; h;}  {rank=same; q3; bf;}
   {rank=same; q4; e;}  {rank=same; q5; cd;} {rank=same; a; ca;}

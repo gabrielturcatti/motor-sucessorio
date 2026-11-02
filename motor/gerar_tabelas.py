@@ -177,7 +177,7 @@ def t1_principal():
     return gravar(
         "T1",
         "Tabela 1 – Custo sucessório por cenário e estratégia (regime 2026, taxa "
-        "real bruta de 6% a.a., sem caducidade), em R$ de valor presente",
+        "real bruta de 6% a.a., sem abandono da apólice), em R$ de valor presente",
         ["Cenário / estratégia", "E[VP]", "CTE-95", "Reversibilidade", "Fronteira"],
         linhas, [3200, 1450, 1450, 1800, 1150],
         "Fonte: elaboração própria (2026). A coluna Fronteira indica se a estratégia "
@@ -206,7 +206,7 @@ def t2_ies():
         "T2",
         "Tabela 2 – Índice de Eficiência Sucessória: decomposição do custo esperado "
         "no cenário A, em R$ de valor presente",
-        ["Estratégia", "Cunha tributária", "Cunha processual", "Cunha de iliquidez",
+        ["Estratégia", "Fricção tributária", "Fricção processual", "Fricção de liquidez",
          "Preço do instrumento", "Total"],
         linhas, [2300, 1350, 1350, 1350, 1350, 1300],
         "Fonte: elaboração própria (2026). A soma das quatro parcelas reproduz o "
@@ -234,7 +234,7 @@ def t3_juro():
         "cenário A e composição da fronteira",
         ["Taxa real", "Seguro", "Inventário", "Razão", "Fronteira de eficiência"],
         linhas, [1000, 1500, 1500, 900, 4000],
-        "Fonte: elaboração própria (2026). Regime 2026, produto WL10, sem caducidade.")
+        "Fonte: elaboração própria (2026). Regime 2026, produto WL10, sem abandono da apólice.")
 
 
 # =============================================================== T4
@@ -256,11 +256,11 @@ def t4_caducidade():
                          for lp in LAPSOS] + ["Variação"]
     return gravar(
         "T4",
-        "Tabela 4 – Efeito da caducidade sobre o custo de cauda do seguro (CTE-95), "
+        "Tabela 4 – Efeito do abandono da apólice sobre o custo de cauda do seguro (CTE-95), "
         "por cenário, em R$ de valor presente",
         cab, linhas, [900, 1350, 1350, 1350, 1350, 1350, 1050],
         "Fonte: elaboração própria (2026). A coluna de variação compara λ = 20% a.a. "
-        "com a ausência de caducidade. Sobre a calibração de λ e a razão de a grade "
+        "com a ausência de abandono. Sobre a calibração de λ e a razão de a grade "
         "ir até 20% ao ano, ver a discussão de fontes nesta seção.")
 
 
@@ -430,7 +430,7 @@ def t7_sem_credito():
         "T7",
         "Tabela 9 – Efeito da indisponibilidade de crédito-ponte sobre o custo "
         "e sobre a fronteira de eficiência, por cenário (regime 2026, taxa real "
-        "bruta de 6% a.a., sem caducidade), em R$ de valor presente",
+        "bruta de 6% a.a., sem abandono da apólice), em R$ de valor presente",
         ["Cenário", "Inventário base", "Inventário s/ crédito",
          "Seguro base", "Seguro s/ crédito", "Fronteira base",
          "Fronteira s/ crédito"],
@@ -462,7 +462,7 @@ def t8_pos2027():
         "T8",
         "Tabela 10 – Sensibilidade regulatória: regime de 2026 e regime pós-2027 "
         "(LC nº 227/2026), por cenário (taxa real bruta de 6% a.a., sem "
-        "caducidade), em R$ de valor presente",
+        "abandono da apólice), em R$ de valor presente",
         ["Cenário", "Inventário 2026", "Inventário pós-2027",
          "Holding 2026", "Holding pós-2027", "Fronteira 2026",
          "Fronteira pós-2027"],
@@ -518,9 +518,9 @@ def figuras():
 
     # F2 — decomposição do IES, cenário A
     sub = d[d.cenario == "A"]
-    parcelas = [("ies_e_tributaria", "Cunha tributária", "0.25"),
-                ("ies_e_processual", "Cunha processual", "0.50"),
-                ("ies_e_iliquidez", "Cunha de iliquidez", "0.72"),
+    parcelas = [("ies_e_tributaria", "Fricção tributária", "0.25"),
+                ("ies_e_processual", "Fricção processual", "0.50"),
+                ("ies_e_iliquidez", "Fricção de liquidez", "0.72"),
                 ("ies_e_instrumento", "Preço do instrumento", "0.90")]
     fig, ax = plt.subplots(figsize=(8.0, 4.6))
     rot = [CURTO[e].replace(" (", "\n(") for e in sub.estrategia]
@@ -570,7 +570,7 @@ def t11_taxa_vgbl():
          "VGBL na fronteira"],
         linhas, [2100, 1700, 1700, 1700, 1500],
         "Fonte: elaboração própria (2026). Regime 2026, taxa real bruta de 6% a.a., "
-        "sem caducidade. A grade é ancorada em fonte: 1,32% é a média oficial do "
+        "sem abandono da apólice. A grade é ancorada em fonte: 1,32% é a média oficial do "
         "segmento aberto e 1,75% a média amostral de Soares e Campani (2020); os "
         "extremos delimitam a faixa em que se situa a quase totalidade dos fundos "
         "de previdência em operação. " + ". ".join(nota) + ".")
@@ -623,7 +623,7 @@ def t12_holding_doacao():
     m = lim.manutencao_sai_fronteira
     h = lim.honor_doacao_sai_fronteira
     nota = (f"Fonte: elaboração própria (2026). Regime 2026, taxa real bruta de 6% a.a., "
-            f"sem caducidade. Caso base: constituição de R$ 25 mil, manutenção de R$ 18 mil "
+            f"sem abandono da apólice. Caso base: constituição de R$ 25 mil, manutenção de R$ 18 mil "
             f"anuais e honorário de 1,5% do valor doado. Cada linha altera um parâmetro, "
             f"exceto as duas últimas. Limiares: a holding deixa a fronteira com manutenção "
             f"anual a partir de cerca de R$ {m['E']/1000:.0f} mil no cenário E, "
@@ -650,7 +650,13 @@ def t13_complementares():
            ("tabua", "ibge_2024", "Tábua IBGE 2024 (população geral)"),
            ("desagio_sem_credito", 0.15, "Sem crédito-ponte, deságio de 15%"),
            ("desagio_sem_credito", 0.25, "Sem crédito-ponte, deságio de 25%"),
-           ("desagio_sem_credito", 0.35, "Sem crédito-ponte, deságio de 35%")]
+           ("desagio_sem_credito", 0.35, "Sem crédito-ponte, deságio de 35%"),
+           ("consumo", "com_credito", "Custo de vida no bloqueio, com crédito-ponte"),
+           ("consumo", "sem_credito", "Custo de vida no bloqueio, sem crédito-ponte"),
+           ("consumo", "com_credito_seguro_cobre",
+            "Idem, com crédito e seguro dimensionado também para o custo de vida"),
+           ("consumo", "sem_credito_seguro_cobre",
+            "Idem, sem crédito e seguro dimensionado também para o custo de vida")]
     linhas = []
     for eixo, val, nome in rot:
         sub = d[(d.eixo == eixo) & (d.valor == str(val))]
@@ -663,12 +669,15 @@ def t13_complementares():
         "seguro e o do inventário direto no cenário A e estratégias na fronteira de "
         "eficiência, por cenário",
         ["Parâmetro alterado", "Razão A", "A", "B", "C", "D", "E", "F"],
-        linhas, [1900, 700, 1070, 1070, 1070, 1070, 1070, 1070],
+        linhas, [1780, 820, 1070, 1070, 1070, 1070, 1070, 1070],
         "Fonte: elaboração própria (2026). Regime 2026, taxa real bruta de 6% a.a., "
-        "sem caducidade, produto WL10. Caso base: alíquota de 15%, prêmio da tabela "
-        "da seguradora, tábua BR-EMS mt 2026 e crédito-ponte disponível. Nas três "
-        "últimas linhas a família não dispõe de crédito e realiza ganho de capital "
-        "sobre 30% do valor vendido. " + NOTA_ABREV)
+        "sem abandono da apólice, produto WL10. Caso base: alíquota de 15%, prêmio da "
+        "tabela da seguradora, tábua BR-EMS mt 2026, crédito-ponte disponível e custo de "
+        "vida da família durante o bloqueio omitido. Nas linhas sem crédito-ponte a "
+        "família realiza ganho de capital sobre 30% do valor vendido. Nas linhas de "
+        "custo de vida, a família despende 4% do patrimônio ao ano, financiados durante "
+        "o prazo do inventário na proporção dos bens que permanecem no espólio. "
+        + NOTA_ABREV)
 
 
 def figura_arvore():
@@ -697,7 +706,7 @@ def figura_arvore():
       style="rounded,filled", fillcolor="gray92"];
   a  [label="Cenário A\nNa fronteira: inventário, seguro\ne doação. Escolha pela aversão\nao risco de cauda.",
       style="rounded,filled", fillcolor="gray92"];
-  ca [label="Condição para o seguro:\npersistência do contrato\n(sai da fronteira com\ncaducidade de 2% a.a.)",
+  ca [label="Condição para o seguro:\npersistência do contrato\n(sai da fronteira com\nabandono de 2% a.a.)",
       shape=note, style="", fontsize=9.5, width=1.6];
   {rank=same; q1; g;}  {rank=same; q2; h;}  {rank=same; q3; bf;}
   {rank=same; q4; e;}  {rank=same; q5; cd;} {rank=same; a; ca;}

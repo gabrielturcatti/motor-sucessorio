@@ -148,6 +148,16 @@ def complementares():
     # doação, e o ganho latente fica com os herdeiros em todas as estratégias.
     # Aplicá-la só às transmissões em vida enviesaria contra holding e doação.
     # tábua: troca o arquivo e limpa o cache
+    # v11: custo de vida da família durante o bloqueio do inventário — despesa
+    # anual de 4% do patrimônio financiada na proporção dos bens presos no espólio.
+    CONS = 0.04
+    coleta(linhas, "consumo", "com_credito", consumo_aa=CONS)
+    coleta(linhas, "consumo", "sem_credito", consumo_aa=CONS,
+           spread_ponte=SEM_CREDITO, plusvalia=0.30)
+    coleta(linhas, "consumo", "com_credito_seguro_cobre", consumo_aa=CONS,
+           seguro_cobre_consumo=True)
+    coleta(linhas, "consumo", "sem_credito_seguro_cobre", consumo_aa=CONS,
+           seguro_cobre_consumo=True, spread_ponte=SEM_CREDITO, plusvalia=0.30)
     original = atuarial.ARQ_TABUA
     for nome in ("tabua_brems_mt_2021.csv", "tabua_ibge_2024.csv"):
         atuarial.ARQ_TABUA = atuarial.DIR_PARAMS / nome

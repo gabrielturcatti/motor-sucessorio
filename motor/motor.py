@@ -38,7 +38,8 @@ def estrategias(cen, r: float, regime: str, produto=("WL", 10),
                 ir_contrafactual=False, plusvalia=None, aliquota_gk=None,
                 aliquota_ir=None, taxa_adm_vgbl=None,
                 holding_constituicao=None, holding_manutencao=None,
-                carga_premio=1.0, gk_transmissao_gratuita=0.0):
+                carga_premio=1.0, gk_transmissao_gratuita=0.0,
+                consumo_aa=0.0, seguro_cobre_consumo=False):
     """Retorna (E, REC, ci, meta, COMP).
 
     COMP[estrategia](t) → dict com a decomposição do MESMO custo que E devolve,
@@ -76,6 +77,17 @@ def estrategias(cen, r: float, regime: str, produto=("WL", 10),
                           tributado a 15% quando a transmissão se faz a VALOR DE
                           MERCADO (art. 23 da Lei 9.532/1997). 0,0 = transmissão
                           pelo valor declarado, sem IR no ato (caso base).
+    v11 (02/nov/2026) — custo de vida durante o bloqueio:
+      consumo_aa          despesa anual da família como fração do patrimônio,
+                          que precisa ser financiada enquanto os bens estão
+                          bloqueados no inventário (0,0 = caso base, omitida).
+                          Financiada pelo mínimo entre crédito-ponte e venda
+                          forçada, na proporção do patrimônio que fica preso no
+                          espólio em cada estratégia (holding e doação retiram
+                          parte dele; seguro e VGBL, dimensionados para o custo
+                          do inventário, não).
+      seguro_cobre_consumo  o capital segurado passa a cobrir também o consumo
+                          do período de bloqueio (capital = CI + consumo).
     """
     ci = custos.custo_inventario(cen.uf, cen.patrimonio, cen.n_herdeiros,
                                  cen.modalidade_inventario, regime,
@@ -98,16 +110,27 @@ def estrategias(cen, r: float, regime: str, produto=("WL", 10),
     cunha = custos.cunha_iliquidez(ci.total, prazo, r_bruto, spread_ponte,
                                    desagio_venda, **kw_gk)
     desc = lambda v, t: v / (1 + r) ** (t + 0.5)
+    # v11: consumo da família durante o bloqueio, financiado como o inventário
+    # (saques mensais ao longo do prazo ≈ montante único com metade do prazo).
+    consumo_total = consumo_aa * cen.patrimonio * prazo / 12
+
+    def _cc(frac):
+        z = {"cunha": 0.0, "iliquidez": 0.0, "tributo_gk": 0.0}
+        if consumo_total <= 0 or frac <= 0:
+            return z
+        return custos.cunha_iliquidez(consumo_total * frac, prazo / 2, r_bruto,
+                                      spread_ponte, desagio_venda, **kw_gk)
+    cc1 = _cc(1.0)
     E, REC, meta, COMP = {}, {}, {}, {}
     Z = {"tributaria": 0.0, "processual": 0.0, "iliquidez": 0.0, "instrumento": 0.0}
     meta["r_desconto"], meta["r_bruto"] = r, r_bruto
 
     # baseline: venda forçada (usa o mínimo entre ponte e venda — família racional)
-    E["baseline_venda"] = lambda t: desc(ci.total + cunha["cunha"], t)
+    E["baseline_venda"] = lambda t: desc(ci.total + cunha["cunha"] + cc1["cunha"], t)
     COMP["baseline_venda"] = lambda t: {
-        "tributaria": desc(ci.itcmd + cunha["tributo_gk"], t),
+        "tributaria": desc(ci.itcmd + cunha["tributo_gk"] + cc1["tributo_gk"], t),
         "processual": desc(ci.honorarios + ci.emolumentos_ou_custas + ci.multa, t),
-        "iliquidez": desc(cunha["iliquidez"], t),
+        "iliquidez": desc(cunha["iliquidez"] + cc1["iliquidez"], t),
         "instrumento": 0.0}
     REC["baseline_venda"] = lambda t: 0.0   # nada foi desembolsado em vida
 
@@ -119,7 +142,11 @@ def estrategias(cen, r: float, regime: str, produto=("WL", 10),
     grossup = ci_com_reserva.total - ci.total
     gu_trib = ci_com_reserva.itcmd - ci.itcmd
     gu_proc = grossup - gu_trib
-    ponte = custos.cunha_iliquidez(ci.total, prazo, r_bruto, spread_ponte, 1e-9)["credito_ponte"]
+    # v11: mínimo entre ponte e venda, como no inventário direto. No caso base o
+    # crédito é sempre mais barato e o resultado é idêntico ao v10; sem crédito a
+    # versão anterior devolvia custo infinito para a reserva.
+    ponte = custos.cunha_iliquidez(ci.total, prazo, r_bruto, spread_ponte,
+                                   desagio_venda, **kw_gk)["cunha"] + cc1["cunha"]
     E["baseline_reserva"] = lambda t: desc(ci.total + grossup + ponte, t)
     COMP["baseline_reserva"] = lambda t: {
         "tributaria": desc(ci.itcmd + gu_trib, t),
@@ -133,7 +160,9 @@ def estrategias(cen, r: float, regime: str, produto=("WL", 10),
     # WL5/10/20/30: quita em N anos; WL60...WL100: quita na idade X; cobertura
     # vitalícia continua após a quitação com custo zero.
     fam, prz = produto
-    p = premios.premio(cen.idade, fam, prz, cen.sexo, ci.total, cen.classe_risco)
+    capital_seg = ci.total + (consumo_total if seguro_cobre_consumo else 0.0)
+    cc_seg = cc1 if not seguro_cobre_consumo else _cc(0.0)
+    p = premios.premio(cen.idade, fam, prz, cen.sexo, capital_seg, cen.classe_risco)
     if p is not None and carga_premio != 1.0:
         p = {**p, "premio_anual": p["premio_anual"] * carga_premio,
              "premio_mensal": p["premio_mensal"] * carga_premio,
@@ -158,7 +187,7 @@ def estrategias(cen, r: float, regime: str, produto=("WL", 10),
             pagos = premios.vp_premios(p, r, min(t + 1, max_anos),
                                        mensal=pagamento_mensal)
             if vit or t < prz:      # cobertura vigente na data do óbito
-                return pagos
+                return pagos + desc(cc_seg["cunha"], t)
             return pagos + E["baseline_venda"](t)   # cobertura expirada
         E["seguro"] = _e_seguro
         E["seguro"].info = p["chave"]
@@ -169,16 +198,18 @@ def estrategias(cen, r: float, regime: str, produto=("WL", 10),
             pagos = premios.vp_premios(p, r, min(t + 1, max_anos),
                                        mensal=pagamento_mensal)
             if vit or t < prz:
-                return {**Z, "instrumento": pagos}
+                return {**Z, "instrumento": pagos,
+                        "iliquidez": desc(cc_seg["iliquidez"], t),
+                        "tributaria": desc(cc_seg["tributo_gk"], t)}
             base = COMP["baseline_venda"](t)
             return {**base, "instrumento": pagos}
         COMP["seguro"] = _c_seguro
         # valor de resgate: fração do capital segurado (= custo do inventário)
         REC["seguro"] = lambda t: resgate.valor_resgate(
-            ci.total, fam, prz, cen.sexo, cen.idade, t)
+            capital_seg, fam, prz, cen.sexo, cen.idade, t)
         meta["seguro"] = {"familia": fam, "prazo": prz, "premio_anual": pa,
                           "premio_mensal": p["premio_mensal"], "p": p,
-                          "max_anos": max_anos, "capital": ci.total,
+                          "max_anos": max_anos, "capital": capital_seg,
                           "chave": p["chave"], "mensal": pagamento_mensal,
                           "carregamento": premios.carregamento_fracionamento(
                               fam, prz, ci.total)}
@@ -205,15 +236,17 @@ def estrategias(cen, r: float, regime: str, produto=("WL", 10),
                                          desagio_venda, **kw_gk)["cunha"] if ci_fora else 0)
     cunha_fora_d = (custos.cunha_iliquidez(ci_fora.total, prazo, r_bruto, spread_ponte,
                                            desagio_venda, **kw_gk) if ci_fora else None)
-    E["holding"] = lambda t: (h["custo_inicial"] + gk_h
+    cc_h = _cc(fora / cen.patrimonio)
+    E["holding"] = lambda t: (h["custo_inicial"] + gk_h + desc(cc_h["cunha"], t)
                               + sum(h["manutencao_anual"] / (1 + r) ** k for k in range(t + 1))
                               + (desc(ci_fora.total + cunha_fora, t) if ci_fora else 0))
     COMP["holding"] = lambda t: {
-        "tributaria": h["itcmd_doacao"] + gk_h + (desc(ci_fora.itcmd + cunha_fora_d["tributo_gk"], t)
+        "tributaria": h["itcmd_doacao"] + gk_h + desc(cc_h["tributo_gk"], t) + (desc(ci_fora.itcmd + cunha_fora_d["tributo_gk"], t)
                                            if ci_fora else 0.0),
         "processual": (desc(ci_fora.honorarios + ci_fora.emolumentos_ou_custas + ci_fora.multa, t)
                        if ci_fora else 0.0),
-        "iliquidez": (desc(cunha_fora_d["iliquidez"], t) if ci_fora else 0.0),
+        "iliquidez": (desc(cunha_fora_d["iliquidez"], t) if ci_fora else 0.0)
+                     + desc(cc_h["iliquidez"], t),
         "instrumento": h["constituicao"] + sum(h["manutencao_anual"] / (1 + r) ** k
                                                for k in range(t + 1))}
     REC["holding"] = lambda t: 0.0   # custo de constituição é afundado
@@ -246,14 +279,16 @@ def estrategias(cen, r: float, regime: str, produto=("WL", 10),
         cunha_res_d = custos.cunha_iliquidez(ci_res.total, prazo, r_bruto, spread_ponte,
                                              desagio_venda, **kw_gk)
         cunha_res = cunha_res_d["cunha"]
+        cc_d = _cc(residuo / cen.patrimonio)
         E["doacao"] = lambda t: (d["total_data_zero"]
-                                 + desc(ci_res.total + cunha_res, t))
+                                 + desc(ci_res.total + cunha_res + cc_d["cunha"], t))
         COMP["doacao"] = lambda t: {
-            "tributaria": d["itcmd_doacao"] + desc(ci_res.itcmd + cunha_res_d["tributo_gk"], t),
+            "tributaria": d["itcmd_doacao"] + desc(ci_res.itcmd + cunha_res_d["tributo_gk"]
+                                                   + cc_d["tributo_gk"], t),
             "processual": d["emolumentos"] + desc(ci_res.honorarios
                                                   + ci_res.emolumentos_ou_custas
                                                   + ci_res.multa, t),
-            "iliquidez": desc(cunha_res_d["iliquidez"], t),
+            "iliquidez": desc(cunha_res_d["iliquidez"] + cc_d["iliquidez"], t),
             "instrumento": d["honorarios"]}
     else:
         E["doacao"] = lambda t: d["total_data_zero"]
@@ -285,7 +320,7 @@ def estrategias(cen, r: float, regime: str, produto=("WL", 10),
                 ir_morte = custos.aliquota_vgbl_regressiva(h) * max(v_nom - A, 0)
                 w_nom = A * (1 + g * (1 - t_ir)) ** h
                 dif_real = (v_nom - ir_morte - w_nom) / (1 + pi) ** h
-                return v["iof_aportes"] - dif_real / (1 + rl) ** h
+                return v["iof_aportes"] - dif_real / (1 + rl) ** h + desc(cc1["cunha"], t)
             E["vgbl"] = _e_vgbl
             def _c_vgbl(t, A=A, g=g_nom, pi=pi, t_ir=t_ir, v=v, rl=r):
                 """Separa o custo do VGBL em preço do produto e efeito tributário.
@@ -300,8 +335,8 @@ def estrategias(cen, r: float, regime: str, produto=("WL", 10),
                 w_nom = A * (1 + g * (1 - t_ir)) ** h
                 instr = (v_sem - v_nom) / disc
                 trib = v["iof_aportes"] - (v_sem - ir_morte - w_nom) / disc
-                return {"tributaria": trib, "processual": 0.0,
-                        "iliquidez": 0.0, "instrumento": instr}
+                return {"tributaria": trib + desc(cc1["tributo_gk"], t), "processual": 0.0,
+                        "iliquidez": desc(cc1["iliquidez"], t), "instrumento": instr}
             COMP["vgbl"] = _c_vgbl
         else:
             E["vgbl"] = lambda t: v["iof_aportes"] + sum(adm / (1 + r) ** k for k in range(t + 1))
