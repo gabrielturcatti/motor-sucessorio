@@ -25,7 +25,7 @@ rodar o motor com outra tabela de precificação.
 | `motor/*.py` | módulos do motor, rotinas de execução (`rodar_v*.py`), suíte de verificação e gerador de tabelas e figuras |
 | `motor/parametros/` | tábuas de mortalidade (BR-EMS mt 2026 e 2021, IBGE 2024) e levantamento dos parâmetros tributários e de custos |
 | `motor/resultados/` | saídas do motor em CSV, usadas pelas tabelas da dissertação |
-| `motor/tabelas/` | Tabelas 1 a 13 da dissertação em CSV, geradas por `gerar_tabelas.py` |
+| `motor/tabelas/` | Tabelas 1 a 15 da dissertação em CSV, geradas por `gerar_tabelas.py` (1 a 13) e `gerar_tabelas_v12.py` (14 e 15) |
 | `motor/figuras/` | Figuras 1 a 3 |
 
 ## Reprodução
@@ -35,6 +35,7 @@ Python 3.10 ou superior, com `pandas` e `matplotlib`; Graphviz (`dot`) para a Fi
 ```bash
 cd motor
 python3 gerar_tabelas.py      # regenera tabelas/ e figuras/ a partir de resultados/
+python3 gerar_tabelas_v12.py  # Tabelas 14 e 15 (matriz de preços de equilíbrio)
 ```
 
 Com a tabela de precificação em `motor/parametros/`:
@@ -46,16 +47,29 @@ python3 rodar_v8.py           # escada de agravo e contratabilidade
 python3 rodar_v7_h.py         # grid de idade × produto (e cenário H na versão antiga)
 python3 rodar_v10_h.py        # cenário H (versão usada na dissertação)
 python3 rodar_v10.py          # holding × doação, sem crédito-ponte, sensibilidades complementares
+python3 rodar_v12_matriz.py   # matriz de preços de equilíbrio e prêmio puro
 python3 gerar_tabelas.py
 ```
 
 Correspondência entre arquivos e tabelas: T1–T5 = Tabelas 1–5; T10 = 6; T9 = 7; T6 = 8;
-T7 = 9; T8 = 10; T11 = 11; T12 = 12; T13 = 13.
+T7 = 9; T8 = 10; T11 = 11; T12 = 12; T13 = 13; T14 = 14; T15 = 15.
 
 Nota: o eixo `plusvalia_sem_credito` de `v9_sensibilidade.csv` usa crédito-ponte com spread
 de 100% a.a., que ainda era tomado pela família em inventários extrajudiciais de 6 meses; a
 variante sem crédito da dissertação (Tabela 9) usa `v10_sem_credito.csv`, em que o crédito é
 de fato inexistente.
+
+## Dados de mercado (seção 4)
+
+`dados_mercado_v12.py` refaz, a partir de fontes públicas, os números de mercado da seção 4:
+prêmio direto e despesas de comercialização do seguro de vida individual (SES/SUSEP, ramo
+1391) e aportes e resgates de VGBL, deflacionados pelo IPCA (IBGE, SIDRA, tabela 1737). Os
+arquivos de origem não são versionados por tamanho; a forma de obtê-los está no cabeçalho do
+script. As saídas estão em `motor/resultados/v12_susep_*.csv`.
+
+```bash
+python3 dados_mercado_v12.py <pasta com os CSVs da SES> <ipca.json>
+```
 
 ## Citação
 
