@@ -1,0 +1,33 @@
+Cenário / estratégia,E[VP],CTE-95,Reversibilidade,Fronteira
+A  Inventário (crédito-ponte/venda),145.754,405.190,0,sim
+A  Inventário (reserva prévia),162.770,452.493,260.592,—
+A  Seguro de vida,256.136,260.707,113.403,sim
+A  Holding familiar,459.320,483.596,0,—
+A  Doação em vida,187.999,309.307,0,sim
+B  Inventário (crédito-ponte/venda),790.711,2.198.142,0,—
+B  Inventário (reserva prévia),867.635,2.411.988,1.413.702,—
+B  Seguro de vida,1.389.959,1.414.765,615.205,—
+B  Holding familiar,1.106.037,1.527.744,0,—
+B  Doação em vida,1.086.255,1.793.071,0,—
+B  VGBL,191.708,289.170,1.413.702,sim
+C  Inventário (crédito-ponte/venda),4.071.809,11.319.445,0,—
+C  Inventário (reserva prévia),4.515.543,12.553.005,6.795.744,—
+C  Seguro de vida,6.681.611,6.800.852,2.957.324,—
+C  Holding familiar,3.693.506,5.901.343,0,sim
+C  Doação em vida,4.678.036,8.312.487,0,—
+D  Inventário (crédito-ponte/venda),10.229.938,28.438.766,0,—
+D  Inventário (reserva prévia),11.424.196,31.758.750,18.289.961,—
+D  Seguro de vida,17.982.786,18.303.710,7.959.296,—
+D  Holding familiar,9.470.555,13.586.572,0,sim
+D  Doação em vida,12.496.818,21.591.447,0,—
+E  Inventário (crédito-ponte/venda),514.597,909.495,0,—
+E  Inventário (reserva prévia),574.672,1.015.670,640.548,—
+E  Seguro de vida,1.019.035,1.134.514,247.277,—
+E  Holding familiar,604.692,649.635,0,sim
+E  Doação em vida,460.712,650.155,0,sim
+F  Inventário (crédito-ponte/venda),27.900,77.560,0,—
+F  Inventário (reserva prévia),30.614,85.106,49.882,—
+F  Seguro de vida,49.029,49.904,21.707,—
+F  Holding familiar,347.232,419.107,0,—
+F  Doação em vida,40.886,64.039,0,—
+F  VGBL,3.017,6.456,49.882,sim

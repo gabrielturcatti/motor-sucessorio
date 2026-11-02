@@ -1,0 +1,39 @@
+digraph G {
+  graph [rankdir=TB, nodesep=0.35, ranksep=0.30, fontname="DejaVu Sans", dpi=220,
+         newrank=true];
+  node  [fontname="DejaVu Sans", fontsize=10.5, shape=box, style="rounded",
+         penwidth=1.1, margin="0.12,0.07", width=2.3];
+  edge  [fontname="DejaVu Sans", fontsize=9.5, arrowsize=0.6, penwidth=0.9];
+  q1 [label="O titular tem\nmotivo de legado?"];
+  g  [label="Caso-limite G\nInstrumento racional: renda vitalícia.\nSeguro sem função sucessória.",
+      style="rounded,filled", fillcolor="gray92"];
+  q2 [label="Quem suporta a obrigação\nno óbito?"];
+  h  [label="Cenário H — haveres\nNa fronteira: pagamento direto e\nseguro temporário. Vitalício dominado,\nsalvo sem parcelamento e sem crédito.",
+      style="rounded,filled", fillcolor="gray92"];
+  q3 [label="O VGBL é aplicável\nao perfil?"];
+  bf [label="Cenários B e F\nVGBL domina (taxa de\nadministração até 2,9% a.a.).",
+      style="rounded,filled", fillcolor="gray92"];
+  q4 [label="O titular é contratável\nem condição padrão?"];
+  e  [label="Cenário E — idade avançada e agravo\nNa fronteira: holding e doação.\nSeguro fora em todas as classes.",
+      style="rounded,filled", fillcolor="gray92"];
+  q5 [label="Patrimônio empresarial\nde grande porte?"];
+  cd [label="Cenários C e D\nNa fronteira: holding (regime 2026).\nSeguro entra em C sem crédito-ponte\nou no regime pós-2027.",
+      style="rounded,filled", fillcolor="gray92"];
+  a  [label="Cenário A\nNa fronteira: inventário, seguro\ne doação. Escolha pela aversão\nao risco de cauda.",
+      style="rounded,filled", fillcolor="gray92"];
+  ca [label="Condição para o seguro:\npersistência do contrato\n(sai da fronteira com\ncaducidade de 2% a.a.)",
+      shape=note, style="", fontsize=9.5, width=1.6];
+  {rank=same; q1; g;}  {rank=same; q2; h;}  {rank=same; q3; bf;}
+  {rank=same; q4; e;}  {rank=same; q5; cd;} {rank=same; a; ca;}
+  q1 -> g  [label="  Não  "];
+  q1 -> q2 [label="  Sim"];
+  q2 -> h  [label="  Sociedade  "];
+  q2 -> q3 [label="  Família"];
+  q3 -> bf [label="  Sim  "];
+  q3 -> q4 [label="  Não"];
+  q4 -> e  [label="  Não  "];
+  q4 -> q5 [label="  Sim"];
+  q5 -> cd [label="  Sim  "];
+  q5 -> a  [label="  Não"];
+  a -> ca  [style=dashed, arrowhead=none];
+}

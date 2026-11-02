@@ -1,0 +1,15 @@
+Parâmetro alterado,A,B,C,D,E,F
+Caso base,"Inv., Seg., Doa.",VGBL,Hol.,Hol.,"Hol., Doa.",VGBL
+Constituição da holding: R$ 10.000,"Inv., Seg., Doa.",VGBL,Hol.,Hol.,"Hol., Doa.",VGBL
+Constituição da holding: R$ 50.000,"Inv., Seg., Doa.",VGBL,Hol.,Hol.,Doa.,VGBL
+Constituição da holding: R$ 100.000,"Inv., Seg., Doa.",VGBL,Hol.,Hol.,Doa.,VGBL
+Constituição da holding: R$ 250.000,"Inv., Seg., Doa.",VGBL,Hol.,Hol.,Doa.,VGBL
+Manutenção anual da holding: R$ 6.000,"Inv., Seg., Doa.",VGBL,Hol.,Hol.,"Hol., Doa.",VGBL
+Manutenção anual da holding: R$ 36.000,"Inv., Seg., Doa.",VGBL,Hol.,Hol.,Doa.,VGBL
+Manutenção anual da holding: R$ 60.000,"Inv., Seg., Doa.",VGBL,"Inv., Hol.",Hol.,Doa.,VGBL
+Manutenção anual da holding: R$ 120.000,"Inv., Seg., Doa.",VGBL,"Inv., Hol., Doa.","Inv., Hol.",Doa.,VGBL
+"Honorário de estruturação da doação: 0,5%","Inv., Seg., Doa.",VGBL,Hol.,Hol.,Doa.,VGBL
+"Honorário de estruturação da doação: 3,0%","Inv., Seg., Doa.",VGBL,Hol.,Hol.,"Inv., Hol., Doa.",VGBL
+"Honorário de estruturação da doação: 5,0%","Inv., Seg.",VGBL,Hol.,Hol.,"Inv., Hol.",VGBL
+"Holding barata (R$ 10 mil + R$ 6 mil/ano), doação a 5%","Inv., Seg., Hol.",VGBL,Hol.,Hol.,Hol.,VGBL
+"Holding cara (R$ 100 mil + R$ 60 mil/ano), doação a 0,5%","Inv., Seg., Doa.",VGBL,"Inv., Hol., Doa.","Inv., Hol.",Doa.,VGBL

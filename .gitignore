@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+# tabela de precificação da seguradora — não redistribuir
+motor/parametros/fatores_*.csv
+motor/parametros/resgate*.csv
+motor/parametros/produtos.csv
+motor/parametros/familia_produtos.csv
+motor/parametros/fator_decrescente.csv
+motor/parametros/novosplanos_csmax.csv
+motor/parametros/tabela18_csmax.csv
+motor/parametros/regras_tarifarias.json
+motor/parametros/README.md
