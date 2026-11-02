@@ -90,7 +90,8 @@ def esc(t):
     return (str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
 
 
-def _cel(texto, larg, negrito, alinha, realce):
+def _cel(texto, larg, negrito, alinha, realce, bordas="", recuo=0, span=1):
+    """Célula no estilo IBGE/ABNT: sem fios verticais; fios só onde pedidos."""
     rpr = "<w:rPr>"
     if negrito:
         rpr += "<w:b/>"
@@ -98,38 +99,107 @@ def _cel(texto, larg, negrito, alinha, realce):
     if realce:
         rpr += '<w:highlight w:val="yellow"/>'
     rpr += "</w:rPr>"
-    return (f'<w:tc><w:tcPr><w:tcW w:w="{larg}" w:type="dxa"/></w:tcPr>'
-            f'<w:p><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/>'
-            f'<w:jc w:val="{alinha}"/></w:pPr>'
-            f'<w:r>{rpr}<w:t xml:space="preserve">{esc(texto)}</w:t></w:r></w:p></w:tc>')
+    tcb = f"<w:tcBorders>{bordas}</w:tcBorders>" if bordas else ""
+    ind = f'<w:ind w:left="{recuo}"/>' if recuo else ""
+    kn = "<w:keepNext/>" if span > 1 else ""
+    t = f'<w:r>{rpr}<w:t xml:space="preserve">{esc(texto)}</w:t></w:r>' if texto != "" else ""
+    gs = f'<w:gridSpan w:val="{span}"/>' if span > 1 else ""
+    return (f'<w:tc><w:tcPr><w:tcW w:w="{larg}" w:type="dxa"/>{gs}{tcb}<w:vAlign w:val="bottom"/></w:tcPr>'
+            f'<w:p><w:pPr>{kn}<w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto"/>'
+            f'{ind}<w:jc w:val="{alinha}"/></w:pPr>{t}</w:p></w:tc>')
+
+
+def _fio(lado, sz, cor="000000"):
+    return f'<w:{lado} w:val="single" w:sz="{sz}" w:space="0" w:color="{cor}"/>'
+
+
+def _grupos(col):
+    """Detecta agrupamento na primeira coluna ("A  x", "A · x", "grupo · x").
+    Devolve [(chave, resto)] ou None quando não há agrupamento útil."""
+    import re as _re
+    if all(_re.match(r"^[A-H]  \S", c) for c in col):
+        g = [("Cenário " + c[0], c[3:]) for c in col]
+    elif all(" · " in c for c in col):
+        g = []
+        for c in col:
+            k, r = c.rsplit(" · ", 1)
+            g.append((("Cenário " + k) if _re.fullmatch(r"[A-H]", k) else k, r))
+    else:
+        return None
+    chaves = [k for k, _ in g]
+    return g if len(set(chaves)) < len(chaves) else None
+
+
+def _alinha(c):
+    import re as _re
+    c = str(c).strip()
+    if _re.fullmatch(r"[−+\-]?(R\$ )?[\d.,]+(%|\*)?( mil)?", c):
+        return "right"
+    if c in ("sim", "—", "n/d", "nunca", "não") or len(c) <= 4:
+        return "center"
+    return "left"
 
 
 def tabela_xml(cabecalho, linhas, larguras, realce=True):
-    """Monta um <w:tbl> no mesmo estilo das tabelas já existentes no documento."""
-    bordas = "".join(
-        f'<w:{b} w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-        for b in ("top", "left", "bottom", "right", "insideH", "insideV"))
+    """Tabela aberta (IBGE, Normas de apresentação tabular, adotadas pela ABNT):
+    fio grosso no topo e na base, fio simples sob o cabeçalho, sem fios
+    verticais; grupos da primeira coluna viram linhas de seção com fio claro."""
     total = sum(larguras)
     out = [f'<w:tbl><w:tblPr><w:tblW w:w="{total}" w:type="dxa"/>'
-           f"<w:tblBorders>{bordas}</w:tblBorders></w:tblPr><w:tblGrid>"]
+           '<w:tblBorders><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/>'
+           '<w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders>'
+           '<w:tblLayout w:type="fixed"/><w:tblCellMar><w:left w:w="85" w:type="dxa"/>'
+           '<w:right w:w="85" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>']
     out += [f'<w:gridCol w:w="{w}"/>' for w in larguras]
     out.append("</w:tblGrid>")
-    out.append("<w:tr>" + "".join(
-        _cel(c, larguras[i], True, "center", realce)
+    cab_b = _fio("top", 12) + _fio("bottom", 6)
+    out.append('<w:tr><w:trPr><w:cantSplit/><w:tblHeader/></w:trPr>' + "".join(
+        _cel(c, larguras[i], True, "left" if i == 0 else "center", realce, cab_b)
         for i, c in enumerate(cabecalho)) + "</w:tr>")
-    for ln in linhas:
+    grupos = _grupos([str(l[0]) for l in linhas])
+    import re as _re
+    num = lambda c: _re.fullmatch(r"[−+\-]?(R\$ )?[\d.,]+(%|\*)?( mil)?", str(c).strip()) is not None
+    vazio = lambda c: str(c).strip() in ("n/d", "—", "nunca", "")
+    col_curta = [all(len(str(l[i]).strip()) <= 4 for l in linhas) for i in range(len(cabecalho))]
+    col_num = [any(num(l[i]) for l in linhas) and all(num(l[i]) or vazio(l[i]) for l in linhas)
+               for i in range(len(cabecalho))]
+    corpo = []
+    ultimo = None
+    for n, ln in enumerate(linhas):
+        primeira = list(ln)
+        recuo = 0
+        if grupos:
+            chave, resto = grupos[n]
+            if chave != ultimo:
+                corpo.append(("grupo", [chave] + [""] * (len(ln) - 1), ultimo is not None))
+                ultimo = chave
+            primeira[0] = resto
+            recuo = 170
+        corpo.append(("linha", primeira, recuo))
+    for k, (tipo, ln, extra) in enumerate(corpo):
+        fim = k == len(corpo) - 1
         cels = []
         for i, c in enumerate(ln):
-            alinha = "left" if i == 0 else "right"
-            cels.append(_cel(c, larguras[i], False, alinha, realce))
-        out.append("<w:tr>" + "".join(cels) + "</w:tr>")
+            b = ""
+            if tipo == "grupo" and extra:
+                b += _fio("top", 4, "A6A6A6")
+            if fim:
+                b += _fio("bottom", 12)
+            if tipo == "grupo":
+                if i == 0:
+                    cels.append(_cel(c, sum(larguras), True, "left", realce, b, span=len(ln)))
+                continue
+            al = "left" if i == 0 else ("right" if col_num[i] else ("center" if col_curta[i] else "left"))
+            cels.append(_cel(c, larguras[i], False, al,
+                             realce, b, extra if i == 0 else 0))
+        out.append('<w:tr><w:trPr><w:cantSplit/></w:trPr>' + "".join(cels) + "</w:tr>")
     out.append("</w:tbl>")
     return "".join(out)
 
 
 def titulo_xml(texto, realce=True):
     hl = '<w:highlight w:val="yellow"/>' if realce else ""
-    return ('<w:p><w:pPr><w:spacing w:after="120"/><w:jc w:val="left"/></w:pPr>'
+    return ('<w:p><w:pPr><w:keepNext/><w:spacing w:after="120"/><w:jc w:val="left"/></w:pPr>'
             f'<w:r><w:rPr><w:b/><w:sz w:val="20"/>{hl}</w:rPr>'
             f'<w:t xml:space="preserve">{esc(texto)}</w:t></w:r></w:p>')
 
@@ -145,8 +215,10 @@ def fonte_xml(texto, realce=True):
 def gravar(nome, titulo, cabecalho, linhas, larguras, fonte, realce=True):
     pd.DataFrame(linhas, columns=cabecalho).to_csv(
         os.path.join(TAB, f"{nome}.csv"), index=False)
-    xml = titulo_xml(titulo, realce) + tabela_xml(cabecalho, linhas, larguras, realce) \
-        + fonte_xml(fonte, realce)
+    tb = tabela_xml(cabecalho, linhas, larguras, realce)
+    if nome in ("T12", "T13"):   # muitas colunas de texto: corpo 9 pt
+        tb = tb.replace('<w:sz w:val="20"/>', '<w:sz w:val="18"/>')
+    xml = titulo_xml(titulo, realce) + tb + fonte_xml(fonte, realce)
     open(os.path.join(TAB, f"{nome}.xml"), "w", encoding="utf-8").write(xml)
     return {"nome": nome, "titulo": titulo, "linhas": len(linhas),
             "colunas": len(cabecalho)}
@@ -190,27 +262,33 @@ def t1_principal():
 
 # =============================================================== T2
 def t2_ies():
-    """Decomposição do IES no cenário A."""
+    """Decomposição do IES em todos os cenários (v25; até a v24, só o cenário A)."""
     d = ler(BASE)
-    sub = d[d.cenario == "A"]
+    menos = lambda v: br(v).replace("-", "−")
     linhas = []
-    for e in ORDEM:
-        r = sub[sub.estrategia == e]
-        if r.empty:
-            continue
-        r = r.iloc[0]
-        linhas.append([NOME[e], br(r.ies_e_tributaria), br(r.ies_e_processual),
-                       br(r.ies_e_iliquidez), br(r.ies_e_instrumento),
-                       br(r.vp_esperado)])
+    for cen in sorted(d.cenario.unique()):
+        sub = d[d.cenario == cen]
+        for e in ORDEM:
+            r = sub[sub.estrategia == e]
+            if r.empty:
+                continue
+            r = r.iloc[0]
+            linhas.append([f"{cen}  {NOME[e]}", menos(r.ies_e_tributaria),
+                           menos(r.ies_e_processual), menos(r.ies_e_iliquidez),
+                           menos(r.ies_e_instrumento), menos(r.vp_esperado)])
     return gravar(
         "T2",
         "Tabela 2 – Índice de Eficiência Sucessória: decomposição do custo esperado "
-        "no cenário A, em R$ de valor presente",
-        ["Estratégia", "Fricção tributária", "Fricção processual", "Fricção de liquidez",
-         "Preço do instrumento", "Total"],
-        linhas, [2300, 1350, 1350, 1350, 1350, 1300],
+        "por cenário e estratégia (regime 2026, taxa real bruta de 6% a.a., sem "
+        "abandono da apólice), em R$ de valor presente",
+        ["Cenário / estratégia", "Fricção tributária", "Fricção processual",
+         "Fricção de liquidez", "Preço do instrumento", "Total"],
+        linhas, [3100, 1200, 1200, 1100, 1250, 1150],
         "Fonte: elaboração própria (2026). A soma das quatro parcelas reproduz o "
-        "total por construção; a demonstração está no Apêndice A, seção A.8.")
+        "total por construção; a demonstração está no Apêndice A, seção A.8. No VGBL, "
+        "a fricção tributária é negativa porque o ganho do diferimento do imposto de "
+        "renda supera os tributos que incidem sobre o veículo. O cenário E roda com "
+        "prêmio agravado de classe C, conforme a seção 5.")
 
 
 # =============================================================== T3
@@ -290,7 +368,7 @@ def t5_grid():
         "Tabela 5 – Razão entre o custo esperado do seguro e o do inventário direto, "
         "por idade de contratação e produto",
         ["Cenário · produto", "40 anos", "50 anos", "60 anos", "70 anos"],
-        linhas, [2600, 1550, 1550, 1550, 1550],
+        linhas, [1800, 1700, 1700, 1700, 1700],
         "Fonte: elaboração própria (2026). Regime 2026, taxa real bruta de 6% a.a. O "
         "asterisco indica que o seguro integra a fronteira de eficiência; “n/d” indica "
         "produto indisponível para a idade — resultado de contratabilidade. O cenário "
@@ -330,7 +408,7 @@ def t6_cenario_h():
         "e com seguro (entity purchase), em R$ de valor presente",
         ["Variante · produto", "Haveres E[VP]", "Seguro E[VP]",
          "Haveres CTE-95", "Seguro CTE-95", "Fronteira"],
-        linhas, [2500, 1300, 1300, 1300, 1300, 1300],
+        linhas, [1500, 1300, 1300, 1300, 1300, 2300],
         "Fonte: elaboração própria (2026). Cinco sócios, firma de R$ 10 milhões, "
         "haveres de R$ 2 milhões por sócio. Valor esperado exato por aditividade; "
         "cauda por simulação de Monte Carlo com semente fixa.")
@@ -435,7 +513,7 @@ def t7_sem_credito():
          "Seguro base", "Seguro s/ crédito", "Fronteira base",
          "Fronteira s/ crédito"],
         linhas,
-        [1050, 1250, 1300, 1150, 1250, 1350, 1350],
+        [900, 1100, 1150, 1100, 1150, 1800, 1800],
         "Fonte: elaboração própria (2026). Na variante sem crédito-ponte a família "
         "dispõe apenas da venda forçada de ativos, com deságio de liquidez de 25% e "
         "ganho de capital tributável (fração de ganho acumulado de 30%). O custo do seguro "
@@ -467,7 +545,7 @@ def t8_pos2027():
          "Holding 2026", "Holding pós-2027", "Fronteira 2026",
          "Fronteira pós-2027"],
         linhas,
-        [1050, 1250, 1300, 1150, 1250, 1350, 1350],
+        [900, 1100, 1150, 1100, 1150, 1800, 1800],
         "Fonte: elaboração própria (2026). O regime pós-2027 substitui a base "
         "contábil das quotas pelo valor de mercado e consolida doações sucessivas, "
         "extinguindo o deságio que hoje favorece holding e doação em vida. As "
@@ -635,7 +713,7 @@ def t12_holding_doacao():
         "Tabela 12 – Sensibilidade aos custos da holding e da doação em vida: "
         "estratégias na fronteira de eficiência, por cenário",
         ["Parâmetro alterado", "A", "B", "C", "D", "E", "F"],
-        linhas, [2000, 1170, 1170, 1170, 1170, 1170, 1170], nota)
+        linhas, [3000, 1350, 700, 1000, 1000, 1150, 700], nota)
 
 
 def t13_complementares():
@@ -668,8 +746,8 @@ def t13_complementares():
         "Tabela 13 – Sensibilidades complementares: razão entre o custo esperado do "
         "seguro e o do inventário direto no cenário A e estratégias na fronteira de "
         "eficiência, por cenário",
-        ["Parâmetro alterado", "Razão A", "A", "B", "C", "D", "E", "F"],
-        linhas, [1780, 820, 1070, 1070, 1070, 1070, 1070, 1070],
+        ["Parâmetro alterado", "Razão", "A", "B", "C", "D", "E", "F"],
+        linhas, [2450, 650, 1350, 700, 1000, 1000, 1150, 700],
         "Fonte: elaboração própria (2026). Regime 2026, taxa real bruta de 6% a.a., "
         "sem abandono da apólice, produto WL10. Caso base: alíquota de 15%, prêmio da "
         "tabela da seguradora, tábua BR-EMS mt 2026, crédito-ponte disponível e custo de "
@@ -734,7 +812,7 @@ if __name__ == "__main__":
                        t5_grid(), t6_cenario_h(), t7_sem_credito(),
                        t8_pos2027(), t9_escada_agravo(), t10_contratabilidade(),
                        t11_taxa_vgbl(), t12_holding_doacao(), t13_complementares()],
-           "figuras": figuras() + [figura_arvore()]}
+           "figuras": []}
     json.dump(man, open(os.path.join(TAB, "manifesto.json"), "w"),
               ensure_ascii=False, indent=2)
     for t in man["tabelas"]:

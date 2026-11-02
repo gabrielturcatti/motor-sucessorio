@@ -1,6 +1,33 @@
-Estratégia,Fricção tributária,Fricção processual,Fricção de liquidez,Preço do instrumento,Total
-Inventário (crédito-ponte/venda),55.616,86.181,3.958,0,145.754
-Inventário (reserva prévia),64.123,94.688,3.958,0,162.770
-Seguro de vida,0,0,0,256.136,256.136
-Holding familiar,87.368,43.822,2.066,326.065,459.320
-Doação em vida,99.647,49.001,1.851,37.500,187.999
+Cenário / estratégia,Fricção tributária,Fricção processual,Fricção de liquidez,Preço do instrumento,Total
+A  Inventário (crédito-ponte/venda),55.616,86.181,3.958,0,145.754
+A  Inventário (reserva prévia),64.123,94.688,3.958,0,162.770
+A  Seguro de vida,0,0,0,256.136,256.136
+A  Holding familiar,87.368,43.822,2.066,326.065,459.320
+A  Doação em vida,99.647,49.001,1.851,37.500,187.999
+B  Inventário (crédito-ponte/venda),257.543,511.697,21.471,0,790.711
+B  Inventário (reserva prévia),288.313,557.852,21.471,0,867.635
+B  Seguro de vida,0,0,0,1.389.959,1.389.959
+B  Holding familiar,563.707,206.712,9.553,326.065,1.106.037
+B  Doação em vida,580.929,269.543,10.783,225.000,1.086.255
+B  VGBL,−1.212.388,0,0,1.404.097,191.708
+C  Inventário (crédito-ponte/venda),975.952,2.721.828,374.029,0,4.071.809
+C  Inventário (reserva prévia),1.123.864,3.017.651,374.029,0,4.515.543
+C  Seguro de vida,0,0,0,6.681.611,6.681.611
+C  Holding familiar,2.418.805,824.143,124.494,326.065,3.693.506
+C  Doação em vida,2.212.134,1.378.339,187.563,900.000,4.678.036
+D  Inventário (crédito-ponte/venda),4.020.422,5.931.728,277.788,0,10.229.938
+D  Inventário (reserva prévia),4.617.551,6.528.857,277.788,0,11.424.196
+D  Seguro de vida,0,0,0,17.982.786,17.982.786
+D  Holding familiar,7.891.062,1.187.516,65.912,326.065,9.470.555
+D  Doação em vida,6.761.299,2.971.775,138.745,2.625.000,12.496.818
+E  Inventário (crédito-ponte/venda),208.446,292.177,13.974,0,514.597
+E  Inventário (reserva prévia),238.484,322.215,13.974,0,574.672
+E  Seguro de vida,0,0,0,1.019.035,1.019.035
+E  Holding familiar,226.793,147.476,7.511,222.911,604.692
+E  Doação em vida,233.853,152.656,6.703,67.500,460.712
+F  Inventário (crédito-ponte/venda),8.736,18.406,758,0,27.900
+F  Inventário (reserva prévia),9.822,20.035,758,0,30.614
+F  Seguro de vida,0,0,0,49.029,49.029
+F  Holding familiar,21.167,0,0,326.065,347.232
+F  Doação em vida,20.443,12.589,353,7.500,40.886
+F  VGBL,−46.526,0,0,49.543,3.017

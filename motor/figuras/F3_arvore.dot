@@ -1,28 +1,23 @@
 digraph G {
-  graph [rankdir=TB, nodesep=0.35, ranksep=0.30, fontname="DejaVu Sans", dpi=220,
-         newrank=true];
-  node  [fontname="DejaVu Sans", fontsize=10.5, shape=box, style="rounded",
-         penwidth=1.1, margin="0.12,0.07", width=2.3];
-  edge  [fontname="DejaVu Sans", fontsize=9.5, arrowsize=0.6, penwidth=0.9];
-  q1 [label="O titular tem\nmotivo de legado?"];
-  g  [label="Caso-limite G\nInstrumento racional: renda vitalícia.\nSeguro sem função sucessória.",
-      style="rounded,filled", fillcolor="gray92"];
-  q2 [label="Quem suporta a obrigação\nno óbito?"];
-  h  [label="Cenário H — haveres\nNa fronteira: pagamento direto e\nseguro temporário. Vitalício dominado,\nsalvo sem parcelamento e sem crédito.",
-      style="rounded,filled", fillcolor="gray92"];
-  q3 [label="O VGBL é aplicável\nao perfil?"];
-  bf [label="Cenários B e F\nVGBL domina (taxa de\nadministração até 2,9% a.a.).",
-      style="rounded,filled", fillcolor="gray92"];
-  q4 [label="O titular é contratável\nem condição padrão?"];
-  e  [label="Cenário E — idade avançada e agravo\nNa fronteira: holding e doação.\nSeguro fora em todas as classes.",
-      style="rounded,filled", fillcolor="gray92"];
-  q5 [label="Patrimônio empresarial\nde grande porte?"];
-  cd [label="Cenários C e D\nNa fronteira: holding (regime 2026).\nSeguro entra em C sem crédito-ponte\nou no regime pós-2027.",
-      style="rounded,filled", fillcolor="gray92"];
-  a  [label="Cenário A\nNa fronteira: inventário, seguro\ne doação. Escolha pela aversão\nao risco de cauda.",
-      style="rounded,filled", fillcolor="gray92"];
-  ca [label="Condição para o seguro:\npersistência do contrato\n(sai da fronteira com\nabandono de 2% a.a.)",
-      shape=note, style="", fontsize=9.5, width=1.6];
+  graph [rankdir=TB, nodesep=0.30, ranksep=0.26, fontname="Liberation Serif", dpi=300,
+         newrank=true, pad=0.05];
+  node  [fontname="Liberation Serif", fontsize=11, penwidth=0.9, margin="0.14,0.07",
+         width=2.35, fontcolor="#1d1d1b"];
+  edge  [fontname="Liberation Serif", fontsize=10, arrowsize=0.55, penwidth=0.8,
+         color="#5f5d58", fontcolor="#3d3c39"];
+  q1 [shape=box, style="rounded", color="#5f5d58", fillcolor="white", label="O titular tem\nmotivo de legado?"];
+  g  [shape=box, style="rounded,filled", color="#b9b7b0", fillcolor="#f3f2ef", label=<<B>Caso-limite G</B><BR/>Instrumento racional: renda vitalícia.<BR/>Seguro sem função sucessória.>];
+  q2 [shape=box, style="rounded", color="#5f5d58", fillcolor="white", label="Quem suporta a obrigação\nno óbito?"];
+  h  [shape=box, style="rounded,filled", color="#2a78d6", penwidth=1.6, fillcolor="#e8f1fb", label=<<B>Cenário H · haveres</B><BR/>Na fronteira: pagamento direto<BR/>e <B>seguro temporário</B>.<BR/>Vitalício dominado, salvo sem<BR/>parcelamento e sem crédito.>];
+  q3 [shape=box, style="rounded", color="#5f5d58", fillcolor="white", label="O VGBL é aplicável\nao perfil?"];
+  bf [shape=box, style="rounded,filled", color="#b9b7b0", fillcolor="#f3f2ef", label=<<B>Cenários B e F</B><BR/>VGBL domina (taxa de<BR/>administração até 2,9% a.a.).>];
+  q4 [shape=box, style="rounded", color="#5f5d58", fillcolor="white", label="O titular é contratável\nem condição padrão?"];
+  e  [shape=box, style="rounded,filled", color="#b9b7b0", fillcolor="#f3f2ef", label=<<B>Cenário E · idade e agravo</B><BR/>Na fronteira: holding e doação.<BR/>Seguro fora em todas as classes.>];
+  q5 [shape=box, style="rounded", color="#5f5d58", fillcolor="white", label="Patrimônio empresarial\nde grande porte?"];
+  cd [shape=box, style="rounded,filled", color="#b9b7b0", fillcolor="#f3f2ef", label=<<B>Cenários C e D</B><BR/>Na fronteira: holding (regime 2026).<BR/>Seguro entra em C sem crédito-ponte<BR/>ou no regime pós-2027.>];
+  a  [shape=box, style="rounded,filled", color="#2a78d6", penwidth=1.6, fillcolor="#e8f1fb", label=<<B>Cenário A</B><BR/>Na fronteira: inventário,<BR/><B>seguro</B> e doação. Escolha pela<BR/>aversão ao risco de cauda.>];
+  ca [shape=note, style="filled", fillcolor="white", color="#b9b7b0", fontsize=10, width=1.7,
+      label="Condição para o seguro:\npersistência do contrato\n(sai da fronteira com\nabandono de 2% a.a.)"];
   {rank=same; q1; g;}  {rank=same; q2; h;}  {rank=same; q3; bf;}
   {rank=same; q4; e;}  {rank=same; q5; cd;} {rank=same; a; ca;}
   q1 -> g  [label="  Não  "];
@@ -35,5 +30,5 @@ digraph G {
   q4 -> q5 [label="  Sim"];
   q5 -> cd [label="  Sim  "];
   q5 -> a  [label="  Não"];
-  a -> ca  [style=dashed, arrowhead=none];
+  a -> ca  [style=dashed, arrowhead=none, color="#b9b7b0"];
 }

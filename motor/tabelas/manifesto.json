@@ -2,14 +2,14 @@
   "tabelas": [
     {
       "nome": "T1",
-      "titulo": "Tabela 1 – Custo sucessório por cenário e estratégia (regime 2026, taxa real bruta de 6% a.a., sem caducidade), em R$ de valor presente",
+      "titulo": "Tabela 1 – Custo sucessório por cenário e estratégia (regime 2026, taxa real bruta de 6% a.a., sem abandono da apólice), em R$ de valor presente",
       "linhas": 32,
       "colunas": 5
     },
     {
       "nome": "T2",
-      "titulo": "Tabela 2 – Índice de Eficiência Sucessória: decomposição do custo esperado no cenário A, em R$ de valor presente",
-      "linhas": 5,
+      "titulo": "Tabela 2 – Índice de Eficiência Sucessória: decomposição do custo esperado por cenário e estratégia (regime 2026, taxa real bruta de 6% a.a., sem abandono da apólice), em R$ de valor presente",
+      "linhas": 32,
       "colunas": 6
     },
     {
@@ -20,7 +20,7 @@
     },
     {
       "nome": "T4",
-      "titulo": "Tabela 4 – Efeito da caducidade sobre o custo de cauda do seguro (CTE-95), por cenário, em R$ de valor presente",
+      "titulo": "Tabela 4 – Efeito do abandono da apólice sobre o custo de cauda do seguro (CTE-95), por cenário, em R$ de valor presente",
       "linhas": 6,
       "colunas": 7
     },
@@ -38,13 +38,13 @@
     },
     {
       "nome": "T7",
-      "titulo": "Tabela 9 – Efeito da indisponibilidade de crédito-ponte sobre o custo e sobre a fronteira de eficiência, por cenário (regime 2026, taxa real bruta de 6% a.a., sem caducidade), em R$ de valor presente",
+      "titulo": "Tabela 9 – Efeito da indisponibilidade de crédito-ponte sobre o custo e sobre a fronteira de eficiência, por cenário (regime 2026, taxa real bruta de 6% a.a., sem abandono da apólice), em R$ de valor presente",
       "linhas": 6,
       "colunas": 7
     },
     {
       "nome": "T8",
-      "titulo": "Tabela 10 – Sensibilidade regulatória: regime de 2026 e regime pós-2027 (LC nº 227/2026), por cenário (taxa real bruta de 6% a.a., sem caducidade), em R$ de valor presente",
+      "titulo": "Tabela 10 – Sensibilidade regulatória: regime de 2026 e regime pós-2027 (LC nº 227/2026), por cenário (taxa real bruta de 6% a.a., sem abandono da apólice), em R$ de valor presente",
       "linhas": 6,
       "colunas": 7
     },
@@ -75,13 +75,9 @@
     {
       "nome": "T13",
       "titulo": "Tabela 13 – Sensibilidades complementares: razão entre o custo esperado do seguro e o do inventário direto no cenário A e estratégias na fronteira de eficiência, por cenário",
-      "linhas": 10,
+      "linhas": 14,
       "colunas": 8
     }
   ],
-  "figuras": [
-    "F1_fronteiras.png",
-    "F2_ies.png",
-    "F3_arvore.png"
-  ]
+  "figuras": []
 }

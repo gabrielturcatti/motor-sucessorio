@@ -26,15 +26,16 @@ rodar o motor com outra tabela de precificação.
 | `motor/parametros/` | tábuas de mortalidade (BR-EMS mt 2026 e 2021, IBGE 2024) e levantamento dos parâmetros tributários e de custos |
 | `motor/resultados/` | saídas do motor em CSV, usadas pelas tabelas da dissertação |
 | `motor/tabelas/` | Tabelas 1 a 15 da dissertação em CSV, geradas por `gerar_tabelas.py` (1 a 13) e `gerar_tabelas_v12.py` (14 e 15) |
-| `motor/figuras/` | Figuras 1 a 3 |
+| `motor/figuras/` | Figuras 1 a 3, geradas por `figuras_v24.py` |
 
 ## Reprodução
 
-Python 3.10 ou superior, com `pandas` e `matplotlib`; Graphviz (`dot`) para a Figura 3.
+Python 3.10 ou superior, com `pandas` e `matplotlib`; Graphviz (`dot`) para a Figura 3; fonte Liberation Serif (métrica do Times New Roman) para as figuras.
 
 ```bash
 cd motor
-python3 gerar_tabelas.py      # regenera tabelas/ e figuras/ a partir de resultados/
+python3 gerar_tabelas.py      # regenera as Tabelas 1 a 13 a partir de resultados/
+python3 figuras_v24.py        # regenera as Figuras 1 a 3
 python3 gerar_tabelas_v12.py  # Tabelas 14 e 15 (matriz de preços de equilíbrio)
 ```
 
